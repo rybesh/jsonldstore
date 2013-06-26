@@ -1,0 +1,54 @@
+#!/usr/bin/env node
+
+var jsonldstore = require('../lib/jsonldstore')
+  , argv = require('optimist').argv
+  , portfinder = require('portfinder')
+  , colors = require('colors')
+    
+if (argv.h || argv.help) {
+  console.log(
+    [ "usage: jsonldstore [options]"
+      , ""
+      , "options:"
+      , "  -p                 Port to use [8080]"
+      , "  -a                 Address to use [0.0.0.0]"
+      , "  -s --silent        Suppress log messages from output"
+      , "  -h --help          Print this list and exit"
+    ].join('\n'))
+  process.exit()
+}
+
+var port = argv.p,
+    host = argv.a || '0.0.0.0',
+    log = (argv.s || argv.silent) ? (function () {}) : console.log
+
+if (!argv.p) {
+  portfinder.basePort = 8080;
+  portfinder.getPort(function (err, port) {
+    if (err) throw err;
+    listen(port);
+  });
+} else {
+  listen(port);
+}
+
+function listen(port) {
+  var server = jsonldstore.createServer();
+
+  server.listen(port, host, function() {
+    log('Starting up jsonldstore, serving '.yellow
+      + ' on port: '.yellow
+      + port.toString().cyan);
+    log('Hit CTRL-C to stop the server');
+  });
+}
+
+if (process.platform !== 'win32') {
+  //
+  // Signal handlers don't work on Windows.
+  //
+  process.on('SIGINT', function () {
+    log('\njsonldstore stopped.'.red);
+    process.exit();
+  });
+}

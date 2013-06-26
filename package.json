@@ -1,0 +1,31 @@
+{ "name": "jsonldstore"
+, "version": "0.0.1"
+, "author": "Ryan Shaw <ryanshaw@unc.edu>"
+, "description": "a RESTful service for storing and managing JSON-JD"
+, "bin": { "jsonldstore": "./bin/jsonldstore" }
+, "scripts": 
+  { "start": "node ./bin/jsonldstore"
+  , "test": "./node_modules/api-easy/node_modules/vows/bin/vows --spec --isolate"
+  }
+, "repository": 
+  { "type": "git"
+  , "url": "https://github.com/editorsnotes/jsonldstore.git"
+  }
+, "keywords": 
+  [ "json-ld"
+  , "rest"
+  , "db"
+  ]
+, "dependencies": 
+  { "couchbase"    : "0.0.x"
+  , "MD5"          : "1.0.x"
+  , "restify"      : "2.6.x"
+  , "uri-js"       : "1.4.x"
+  , "portfinder"   : "0.2.x"
+  , "colors"       : "0.6.x"
+  , "optimist"     : "0.6.x"
+  }
+, "devDependencies": { "api-easy" : "0.3.x" }
+, "license": "MIT"
+, "engines": { "node": ">=0.10" }
+}
