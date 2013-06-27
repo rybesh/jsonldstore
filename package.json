@@ -5,7 +5,7 @@
 , "bin": { "jsonldstore": "./bin/jsonldstore" }
 , "scripts": 
   { "start": "node ./bin/jsonldstore"
-  , "test": "./node_modules/api-easy/node_modules/vows/bin/vows --spec --isolate"
+  , "test": "./node_modules/api-easy/node_modules/vows/bin/vows test/jsonldstore.js --spec --isolate && ./node_modules/nodeunit/bin/nodeunit test/jsonldtransform.js"
   }
 , "repository": 
   { "type": "git"
@@ -27,7 +27,11 @@
   , "request"      : "2.21.x"
   , "clarinet"     : "0.7.x"
   }
-, "devDependencies": { "api-easy" : "0.3.x" }
+, "devDependencies": 
+  { "nodeunit"      : "0.8.x" 
+  , "api-easy"      : "0.3.x"
+  , "eventemitter2" : "0.4.x"
+  }
 , "license": "MIT"
 , "engines": { "node": ">=0.10" }
 }
