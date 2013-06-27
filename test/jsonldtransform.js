@@ -141,6 +141,30 @@ module.exports =
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------
+  , 'multiple contexts': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'context'
+        , 'http://example.org/contexts/person.jsonld'
+        , 'readable'
+        , { "name": "Manu Sporny"
+          , "homepage": "http://manu.sporny.org/" 
+          , "depiction": "http://twitter.com/account/profile_image/manusporny"
+          }
+        , 'context'
+        , 'http://example.org/contexts/place.jsonld'
+        , 'readable'
+        , { "name": "The Empire State Building"
+          , "description": "The Empire State Building is a 102-story landmark in New York City." 
+          , "geo": { "latitude": "40.75", "longitude": "73.98" }
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/multiple_contexts.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
   , 'named graph': function(test) {
       this.expect(test,
         [ 'pipe'
