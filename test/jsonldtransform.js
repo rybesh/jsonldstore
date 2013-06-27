@@ -205,6 +205,49 @@ module.exports =
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------
+  , 'language map': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'context'
+        , { "occupation": 
+            { "@id": "ex:occupation", "@container": "@language" } 
+          }
+        , 'readable'
+        , { "name": "Yagyū Muneyoshi"
+          , "occupation":
+            { "ja": "忍者"
+            , "en": "Ninja"
+            , "cs": "Nindža"
+            }
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/language_map.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
+  , 'set multiple values': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'readable'
+        , { "@id": "http://example.org/articles/8"
+          , "dc:title": 
+            [ { "@value": "Das Kapital"
+              , "@language": "de"
+              }
+            , { "@value": "Capital"
+              , "@language": "en"
+              }
+            ]
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/set_multiple_values.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
   , 'named graph': function(test) {
       this.expect(test,
         [ 'pipe'
