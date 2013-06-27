@@ -24,6 +24,8 @@
   , "portfinder"   : "0.2.x"
   , "colors"       : "0.6.x"
   , "optimist"     : "0.6.x"
+  , "request"      : "2.21.x"
+  , "clarinet"     : "0.7.x"
   }
 , "devDependencies": { "api-easy" : "0.3.x" }
 , "license": "MIT"
