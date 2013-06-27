@@ -98,6 +98,23 @@ module.exports =
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------
+  , 'referenced context': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'context'
+        , 'http://json-ld.org/contexts/person.jsonld'
+        , 'readable'
+        , { "name": "Manu Sporny"
+          , "homepage": "http://manu.sporny.org/" 
+          , "image": "http://manu.sporny.org/images/manu.png"
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/referenced_context.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
   , 'inline context': function(test) {
       this.expect(test,
         [ 'pipe'
