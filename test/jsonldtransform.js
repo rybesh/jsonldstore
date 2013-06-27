@@ -165,6 +165,27 @@ module.exports =
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------
+  , 'scoped contexts': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'context'
+        , { "name": "http://example.com/person#name"
+          , "details": "http://example.com/person#details"
+          }
+        , 'readable'
+        , { "name": "Markus Lanthaler"
+          , "details": 
+            { "@context": { "name": "http://example.com/organization#name" }
+            , "name": "Graz University of Technology" 
+            }
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/scoped_contexts.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
   , 'named graph': function(test) {
       this.expect(test,
         [ 'pipe'
