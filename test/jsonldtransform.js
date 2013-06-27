@@ -186,6 +186,25 @@ module.exports =
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------
+  , 'combined external and local contexts': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'context'
+        , [ "http://json-ld.org/contexts/person.jsonld"
+          , { "pic": "http://xmlns.com/foaf/0.1/depiction" }
+          ]
+        , 'readable'
+        , { "name": "Manu Sporny"
+          , "homepage": "http://manu.sporny.org/"
+          , "pic": "http://twitter.com/account/profile_image/manusporny"
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/combined_external_and_local_contexts.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
   , 'named graph': function(test) {
       this.expect(test,
         [ 'pipe'
