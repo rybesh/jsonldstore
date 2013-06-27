@@ -258,7 +258,7 @@ module.exports =
           , 'place of birth': 'http://www.wikidata.org/wiki/Q4115712' 
           }
         , 'readable'
-          , { '@id': 'http://www.wikidata.org/wiki/Q4115712'
+        , { '@id': 'http://www.wikidata.org/wiki/Q4115712'
           , '@type': 'http://www.wikidata.org/wiki/Q2221906'
           , 'name': 'Kaunas' 
           }
@@ -270,6 +270,34 @@ module.exports =
         , 'end'    // done reading
         ])
       fs.createReadStream('test/data/named_graph.json')
+        .pipe(this.transform).pipe(this.check)
+    }
+//------------------------------------------------------------------------------
+  , 'default graph': function(test) {
+      this.expect(test,
+        [ 'pipe'
+        , 'readable'
+        , { '@id': 'http://manu.sporny.org/i/public'
+          , '@type': 'foaf:Person'
+          , 'name': 'Manu Sporny'
+          , 'knows': 'http://greggkellogg.net/foaf#me' 
+          }
+        , 'readable'
+        , { '@id': 'http://greggkellogg.net/foaf#me'
+          , '@type': 'foaf:Person'
+          , 'name': 'Gregg Kellogg'
+          , 'knows': 'http://manu.sporny.org/i/public'
+          }
+        , 'graph'
+        , { '@graph': 
+            [ 'http://manu.sporny.org/i/public'
+            , 'http://greggkellogg.net/foaf#me'
+            ]
+          }
+        , 'finish' // done writing
+        , 'end'    // done reading
+        ])
+      fs.createReadStream('test/data/default_graph.json')
         .pipe(this.transform).pipe(this.check)
     }
 //------------------------------------------------------------------------------

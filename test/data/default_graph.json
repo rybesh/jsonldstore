@@ -1,0 +1,17 @@
+{
+  "@graph":
+  [
+    {
+      "@id": "http://manu.sporny.org/i/public",
+      "@type": "foaf:Person",
+      "name": "Manu Sporny",
+      "knows": "http://greggkellogg.net/foaf#me"
+    },
+    {
+      "@id": "http://greggkellogg.net/foaf#me",
+      "@type": "foaf:Person",
+      "name": "Gregg Kellogg",
+      "knows": "http://manu.sporny.org/i/public"
+    }
+  ]
+}
