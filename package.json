@@ -5,7 +5,7 @@
 , "bin": { "jsonldstore": "./bin/jsonldstore" }
 , "scripts": 
   { "start": "node ./bin/jsonldstore"
-  , "test": "./node_modules/api-easy/node_modules/vows/bin/vows test/jsonldstore.js --spec --isolate && ./node_modules/nodeunit/bin/nodeunit test/jsonldtransform.js"
+  , "test": "./node_modules/api-easy/node_modules/vows/bin/vows test/jsonldstore.js --spec --isolates"
   }
 , "repository": 
   { "type": "git"
@@ -17,19 +17,18 @@
   , "db"
   ]
 , "dependencies": 
-  { "couchbase"    : "0.0.x"
-  , "MD5"          : "1.0.x"
-  , "restify"      : "2.6.x"
-  , "uri-js"       : "1.4.x"
-  , "portfinder"   : "0.2.x"
-  , "colors"       : "0.6.x"
-  , "optimist"     : "0.6.x"
-  , "request"      : "2.21.x"
-  , "clarinet"     : "0.7.x"
+  { "couchbase"       : "0.0.x"
+  , "MD5"             : "1.0.x"
+  , "restify"         : "2.6.x"
+  , "uri-js"          : "1.4.x"
+  , "portfinder"      : "0.2.x"
+  , "colors"          : "0.6.x"
+  , "optimist"        : "0.6.x"
+  , "request"         : "2.21.x"
+  , "jsonldtransform" : "0.0.x"
   }
 , "devDependencies": 
-  { "nodeunit"      : "0.8.x" 
-  , "api-easy"      : "0.3.x"
+  { "api-easy"      : "0.3.x"
   , "eventemitter2" : "0.4.x"
   }
 , "license": "MIT"
