@@ -2,10 +2,14 @@
 
 var jsonldstore = require('../lib/jsonldstore')
   , argv = require('optimist').argv
-  , portfinder = require('portfinder')
+  , assert = require('assert')
+  , bunyan = require('bunyan')
   , colors = require('colors')
-  , request = require('request')
   , fs = require('fs')
+  , http = require('http')
+  , portfinder = require('portfinder')
+  , Readable = require('stream').Readable
+  , Writable = require('stream').Writable
     
 if (argv.h || argv.help) {
   console.log(
@@ -15,6 +19,7 @@ if (argv.h || argv.help) {
       , "  -p                 Port to use [8080]"
       , "  -a                 Address to use [0.0.0.0]"
       , "  -d                 JSON file with data to load"
+      , "  -b                 Bucket to load data into [default]"
       , "  -s --silent        Suppress log messages from output"
       , "  -h --help          Print this list and exit"
     ].join('\n'))
@@ -23,7 +28,10 @@ if (argv.h || argv.help) {
 
 var port = argv.p,
     host = argv.a || '0.0.0.0',
-    log = (argv.s || argv.silent) ? (function () {}) : console.log
+    log = bunyan.createLogger(
+      { name: 'jsonldstore'
+      , level: (argv.s || argv.silent) ? 'fatal' : 'debug' 
+      })
 
 if (!argv.p) {
   portfinder.basePort = 8080
@@ -35,19 +43,41 @@ if (!argv.p) {
   listen(port)
 }
 
+function logwriter(level) {
+  var writer = new Writable()
+  writer._write = function(chunk, encoding, done){
+    log[level](chunk.toString())
+    done()
+  }
+  return writer
+}
+
+function load(port) {
+  var options = { hostname: host
+                , port: port
+                , method: 'POST'
+                , path: '/'
+                }
+    , req = http.request(options, function(res) {
+        log.info('STATUS: ' + res.statusCode)
+        log.info('HEADERS: ' + JSON.stringify(res.headers))
+        res.pipe(logwriter('info'))
+      })
+  fs.createReadStream(argv.d).pipe(req)
+}
+
 function listen(port) {
-  var server = jsonldstore.createServer();
+  var server = jsonldstore.createServer(
+    { name: 'jsonldstore'
+    , bucket: argv.b
+    , log: log
+    })
   server.on('listening', function() {
-    if (argv.d) {
-      fs.createReadStream(argv.d).pipe(
-        request.put('http://'+host+':'+port+'/', function(err,res,body){
-          console.log(body)
-        }))
-    }
-    log('Starting up jsonldstore, serving '.yellow
+    if (argv.d) load(port)
+    log.info('Starting up jsonldstore, serving '.yellow
       + ' on port: '.yellow
       + port.toString().cyan);
-    log('Hit CTRL-C to stop the server');
+    log.info('Hit CTRL-C to stop the server');
   })
   server.listen(port, host)
 }
@@ -57,7 +87,7 @@ if (process.platform !== 'win32') {
   // Signal handlers don't work on Windows.
   //
   process.on('SIGINT', function () {
-    log('\njsonldstore stopped.'.red);
+    log.info('\njsonldstore stopped.'.red);
     process.exit();
   });
 }

@@ -24,7 +24,7 @@
   , "portfinder"      : "0.2.x"
   , "colors"          : "0.6.x"
   , "optimist"        : "0.6.x"
-  , "request"         : "2.21.x"
+  , "bunyan"          : "0.21.x"
   , "jsonldtransform" : "0.0.x"
   }
 , "devDependencies": 

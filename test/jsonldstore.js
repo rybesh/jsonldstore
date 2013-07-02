@@ -5,10 +5,10 @@ var APIeasy = require('api-easy')
 suite.discuss('When reading from API')
   .discuss('and GET requesting a graph URI')
   .use('localhost', 8080)
-  .get('/_graphs/my-test-graph')
+  .get('/_graphs/test-graph-1')
   .expect(200,
     { '@context': {}
-    , '@id': '/_graphs/my-test-graph'
+    , '@id': '/_graphs/test-graph-1'
     , '@graph':
       [ { '@id': '/topicnode/666'
         , '@type': 'http://www.wikidata.org/wiki/Q215627'
