@@ -1,24 +1,31 @@
-var APIeasy = require('api-easy')
-  , assert = require('assert')
-  , suite = APIeasy.describe('jsonldstore API')
+var fs = require('fs')
+  , http = require('http')
+  , Writable = require('stream').Writable
 
-suite.discuss('When reading from API')
-  .discuss('and GET requesting a graph URI')
-  .use('localhost', 8080)
-  .get('/_graphs/test-graph-1')
-  .expect(200,
-    { '@context': {}
-    , '@id': '/_graphs/test-graph-1'
-    , '@graph':
-      [ { '@id': '/topicnode/666'
-        , '@type': 'http://www.wikidata.org/wiki/Q215627'
-        , 'name': 'Emma Goldman'
-        , 'place of birth': 'http://www.wikidata.org/wiki/Q4115712'
-        }
-      , { '@id': 'http://www.wikidata.org/wiki/Q4115712'
-        , '@type': 'http://www.wikidata.org/wiki/Q2221906'
-        , 'name': 'Kaunas'
-        }
-      ]
-    })
-  .export(module)
+module.exports =
+  { setUp: function(callback) {
+      this.load = function(path, callback) {
+        var options = 
+          { hostname: '0.0.0.0'
+          , port: 8080
+          , method: 'POST'
+          , path: '/'
+          }
+        fs.createReadStream(path).pipe(http.request(options, callback))  
+      }
+      this.nowhere = new Writable()
+      this.nowhere._write = function(chunk, encoding, done) { done() }
+      callback()
+    }
+//------------------------------------------------------------------------------
+  , 'loading via POST to /': function(test) {
+      var self = this
+      test.expect(2)
+      self.load('test/data/named_graph.json', function(res) {
+        test.equal(res.statusCode, 201)
+        test.equal(res.headers.location, '/_graphs/test-graph-1')
+        res.pipe(self.nowhere)
+        test.done()
+      })
+    }
+  }

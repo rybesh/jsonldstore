@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
+"use strict";
+
 var jsonldstore = require('../lib/jsonldstore')
   , argv = require('optimist').argv
   , assert = require('assert')
   , bunyan = require('bunyan')
-  , colors = require('colors')
   , fs = require('fs')
   , http = require('http')
   , portfinder = require('portfinder')
@@ -74,9 +75,7 @@ function listen(port) {
     })
   server.on('listening', function() {
     if (argv.d) load(port)
-    log.info('Starting up jsonldstore, serving '.yellow
-      + ' on port: '.yellow
-      + port.toString().cyan);
+    log.info('Starting up jsonldstore, serving on port: ' + port);
     log.info('Hit CTRL-C to stop the server');
   })
   server.listen(port, host)
@@ -87,7 +86,7 @@ if (process.platform !== 'win32') {
   // Signal handlers don't work on Windows.
   //
   process.on('SIGINT', function () {
-    log.info('\njsonldstore stopped.'.red);
+    log.info('\njsonldstore stopped.');
     process.exit();
   });
 }
