@@ -19,15 +19,18 @@
 , "dependencies": 
   { "couchbase"       : "0.0.x"
   , "MD5"             : "1.0.x"
+  , "aysnc"           : "0.2.x"
   , "restify"         : "2.6.x"
   , "uri-js"          : "1.4.x"
   , "portfinder"      : "0.2.x"
   , "optimist"        : "0.6.x"
   , "bunyan"          : "0.21.x"
   , "jsonldtransform" : "0.0.x"
+  , "node-uuid"       : "1.4.x"
   }
 , "devDependencies":
-  { "nodeunit" : "0.8.x" }
+  { "nodeunit" : "0.8.x" 
+  }
 , "license": "MIT"
 , "engines": { "node": ">=0.10" }
 }
