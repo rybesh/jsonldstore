@@ -26,55 +26,76 @@ module.exports =
             callback(res)
           }))
       }
+      self.consume = function(res, done) {
+        res.on('readable', res.read)
+        if (done) res.on('end', done)
+      }
       self.nowhere = new Writable()
-      self.nowhere._write = function(chunk, encoding, done) { done() }
+      self.nowhere._write = function(chunk, encoding, done) { 
+        console.log(chunk)
+        done() 
+      }
       done()
     }
   , tearDown: function(done) {
       var self = this
-      self.graphs.forEach(function (uri) {
-        self.request('DELETE', uri)
-      })
-      done()
+        , uri = null
+      function delete_graphs() {
+        uri = self.graphs.pop()
+        if (uri) {
+          self.request('DELETE', uri)
+          delete_graphs()
+        } else {
+          done()
+        }
+      }
+      delete_graphs()
     }
 //------------------------------------------------------------------------------
-  , 'Loading via POST to /graphs/': function(test) {
+  // , 'Loading via POST to /graphs/': function(test) {
+  //     var self = this
+  //     test.expect(3)
+  //     self.load('test/data/named_graph.json', function(res) {
+  //       test.equal(res.statusCode, 201)
+  //       test.ok(res.headers.location, 'location header set')
+  //       test.ok(
+  //         res.headers.location.slice(0,8) === '/graphs/', 
+  //         'location is: ' + res.headers.location)
+  //       res.pipe(self.nowhere)
+  //       test.done()
+  //     })
+  //   }
+//------------------------------------------------------------------------------
+  , 'POST to graph objects URI': function(test) {
       var self = this
-      test.expect(2)
-      self.load('test/data/named_graph.json', function(res) {
-        test.equal(res.statusCode, 201)
-        test.ok(
-          res.headers.location.slice(0,8) === '/graphs/', 
-          'location is: ' + res.headers.location)
-        res.pipe(self.nowhere)
-        test.done()
+        , objects_uri
+        , req
+      test.expect(3)
+      self.load('test/data/named_graph.json', function(res1) {
+        objects_uri = res1.headers.location + '/objects'
+        self.consume(res1)
+        req = self.request('POST', objects_uri, function(res2) {
+          if (res2.statusCode !== 201) {
+            test.fail(res2.statusCode, 201, null, '!==')
+          } else {
+            test.ok(res2.headers.location, 'location header set')
+            test.ok(
+              res2.headers.location.indexOf(objects_uri) === 0, 
+              (res2.headers.location+' does not start with '+objects_uri))
+            test.ok(
+              res2.headers.location.length > objects_uri.length,
+              res2.headers.location)
+          }
+          self.consume(res2, test.done)
+        })
+        req.write(JSON.stringify(
+          { "@id": "/topicnode/123"
+          , "@type": "http://www.wikidata.org/wiki/Q215627"
+          , "name": "Ryan Shaw"
+          }))
+        req.end()
       })
-    }
-//------------------------------------------------------------------------------
-//   , 'POST to graph URI': function(test) {
-//       var self = this
-//         , req
-//       test.expect(1)
-//       self.load('test/data/named_graph.json', function(res1) {
-//         res1.pipe(self.nowhere)
-//         req = self.request('POST', res1.headers.location, function(res2) {
-//           if (res2.statusCode !== 201) {
-//             test.fail(res2.statusCode, 201, null, '!==')
-//             test.done()
-//           } else {
-//             test.equal(res2.headers.location, '/topicnode/123')
-//             res2.pipe(self.nowhere)
-//             test.done()
-//           }
-//         })
-//         req.write(JSON.stringify(
-//           { "@id": "/topicnode/123"
-//           , "@type": "http://www.wikidata.org/wiki/Q215627"
-//           , "name": "Ryan Shaw"
-//           }))
-//         req.end()
-//       })
-//   }
+  }
 //------------------------------------------------------------------------------
   // , 'GETting a graph': function(test) {
   //     var self = this
@@ -82,19 +103,19 @@ module.exports =
   //     parsejsonld.on('error', function(e) {
   //       test.ifError(e)
   //     })
-  //     parsejsonld.on('graph', function(o) {
-  //       test.deepEqual(o, 
-  //         { '@id': '/_graphs/test-graph-1' 
-  //         , '@graph':
-  //             [ { "@id": "/topicnode/666" }
-  //             , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
-  //             ]
-  //         })
-  //       test.done()
-  //     })
   //     test.expect(1)
   //     self.load('test/data/named_graph.json', function(res1) {
   //       res1.pipe(self.nowhere)
+  //       parsejsonld.on('graph', function(o) {
+  //         test.deepEqual(o, 
+  //           { '@id': '/_graphs/test-graph-1' 
+  //           , '@graph':
+  //             [ { "@id": "/topicnode/666" }
+  //             , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
+  //             ]
+  //           })
+  //         test.done()
+  //       })
   //       self.request('GET', res1.headers.location, function(res2) {
   //         if (res2.statusCode !== 200) {
   //           test.fail(res2.statusCode, 200, null, '!==')
