@@ -20,13 +20,9 @@ module.exports =
           req.end()
         return req
       }
-      self.graphs = []
       self.load = function(path, callback) {
-        fs.createReadStream(path).pipe(self.request('POST', '/graphs', 
-          function(res) {
-            self.graphs.push(res.headers.location)
-            callback(res)
-          }))
+        fs.createReadStream(path).pipe(
+          self.request('POST', '/graphs', callback))
       }
       self.consume = function(res, done) {
         res.on('readable', res.read)
@@ -36,17 +32,21 @@ module.exports =
     }
   , tearDown: function(done) {
       var self = this
-        , uri = null
-      function delete_graphs() {
-        uri = self.graphs.pop()
-        if (uri) {
-          self.request('DELETE', uri)
-          delete_graphs()
-        } else {
-          done()
-        }
+        , deleter = new Writable()
+      deleter._buffer = ''
+      deleter._write = function(chunk, encoding, callback) {
+        deleter._buffer += chunk
+        callback()
       }
-      delete_graphs()
+      deleter.on('finish', function(){
+        JSON.parse(deleter._buffer).forEach(function(row){
+          self.request('DELETE', row.key)
+        })
+        done()
+      })
+      self.request('GET', '/graphs', function(res){
+        res.pipe(deleter)
+      })
     }
 //------------------------------------------------------------------------------
   , 'Loading via POST to /graphs/': function(test) {
@@ -118,6 +118,34 @@ module.exports =
             test.done()
           } else {
             res2.pipe(parsejsonld)
+          }
+        })
+      })
+    }
+//------------------------------------------------------------------------------
+  , 'GET /graphs': function(test) {
+      var self = this
+        , buffer = ''
+        , result = null
+      test.expect(4)
+      self.load('test/data/named_graph.json', function(res1) {
+        self.consume(res1)
+        self.request('GET', '/graphs', function(res2) {
+          if (res2.statusCode !== 200) {
+            test.fail(res2.statusCode, 200, null, '!==')
+            test.done()
+          } else {
+            res2.on('readable', function() {
+              buffer += res2.read()
+            })
+            res2.on('end', function() {
+              result = JSON.parse(buffer)
+              test.ok(result instanceof Array, buffer)
+              test.equal(result.length, 1)
+              test.equal(result[0].key, res1.headers.location)
+              test.equal(result[0].value['@id'], '/_graphs/test-graph-1')
+              test.done()
+            })
           }
         })
       })
