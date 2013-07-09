@@ -29,6 +29,16 @@ module.exports =
         res.on('readable', res.read)
         if (done) res.on('end', done)
       }
+      self.deleteGraphs = function(uris, done) {
+        if (uris.length) {
+          self.request('DELETE', uris.pop(), function(res){
+            self.consume(res)
+            self.deleteGraphs(uris, done)
+          })
+        } else {
+          process.nextTick(done)
+        }
+      }
       done()
     }
   , tearDown: function(done) {
@@ -40,10 +50,8 @@ module.exports =
         callback()
       }
       deleter.on('finish', function(){
-        JSON.parse(deleter._buffer).forEach(function(row){
-          self.request('DELETE', row.key)
-        })
-        done()
+        self.deleteGraphs(
+          JSON.parse(deleter._buffer).map(function(o){ return o.key }), done)
       })
       self.request('GET', '/graphs', function(res){
         res.pipe(deleter)
@@ -202,6 +210,43 @@ module.exports =
         )
       })
     }
+//------------------------------------------------------------------------------
+  , 'DELETE a single object': function(test) {
+      var self = this
+        , object_url
+      test.expect(0)
+      self.load('test/data/named_graph.json', function(res1) {
+        self.consume(res1)
+        object_url = res1.headers.location+'/objects/'+hashurl('/topicnode/666')
+        self.request('DELETE', object_url, function(res2) {
+          self.consume(res2)
+          test.done()
+        })
+      })
+    }
+  //           if (res2.statusCode !== 200) {
+  //             test.fail(res2.statusCode, 200, null, '!==')
+  //             test.done()
+  //           } else {
+  //             test.ok(true)
+  //             test.done()
+  //             // self.request('GET', object_url,
+  //             //   function(res3) {
+  //             //     self.consume(res3)
+  //             //     if (res3.statusCode !== 404) {
+  //             //       test.fail(res3.statusCode, 404, null, '!==')
+  //             //     } else {
+  //             //       test.ok(res3.statusCode === 404)
+  //             //     }
+  //             //     test.done()
+  //             //   }
+  //             // )
+  //           }
+  //           self.consume(res2)
+  //         }
+  //       )
+  //     })
+  //   }
 //------------------------------------------------------------------------------
   , 'GET /graphs': function(test) {
       var self = this
