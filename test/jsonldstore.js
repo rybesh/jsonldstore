@@ -4,6 +4,7 @@ var fs = require('fs')
   , http = require('http')
   , Writable = require('stream').Writable
   , JSONLDTransform = require('jsonldtransform').JSONLDTransform
+  , hashurl = require('../lib/hashurl')
 
 module.exports =
   { setUp: function(done) {
@@ -160,6 +161,45 @@ module.exports =
             res2.pipe(parsejsonld).pipe(check)
           }
         })
+      })
+    }
+//------------------------------------------------------------------------------
+  , 'GETting a single object': function(test) {
+      var self = this
+        , expect
+        , parsejsonld = new JSONLDTransform()
+        , check = new Writable({objectMode:true})
+      expect = 
+        [ { "@id": "/topicnode/666"
+          , "@type": "http://www.wikidata.org/wiki/Q215627"
+          , "name": "Emma Goldman"
+          , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
+          }
+        ]
+      test.expect(expect.length)
+      parsejsonld.on('error', function(e) {
+        test.ifError(e)
+      })
+      check._write = function(chunk, encoding, callback) {
+        test.deepEqual(chunk, expect.shift())
+        callback()
+      }
+      check.on('finish', function(){
+        test.done()
+      })
+      self.load('test/data/named_graph.json', function(res1) {
+        self.consume(res1)
+        self.request('GET', 
+          res1.headers.location+'/objects/'+hashurl('/topicnode/666'), 
+          function(res2) {
+            if (res2.statusCode !== 200) {
+              test.fail(res2.statusCode, 200, null, '!==')
+              test.done()
+            } else {
+              res2.pipe(parsejsonld).pipe(check)
+            }
+          }
+        )
       })
     }
 //------------------------------------------------------------------------------
