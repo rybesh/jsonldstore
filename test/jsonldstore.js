@@ -214,39 +214,29 @@ module.exports =
   , 'DELETE a single object': function(test) {
       var self = this
         , object_url
-      test.expect(0)
+      test.expect(1)
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
         object_url = res1.headers.location+'/objects/'+hashurl('/topicnode/666')
         self.request('DELETE', object_url, function(res2) {
           self.consume(res2)
-          test.done()
+          if (res2.statusCode !== 200) {
+            test.fail(res2.statusCode, 200, null, '!==')
+            test.done()
+          } else {
+            self.request('GET', object_url, function(res3) {
+              self.consume(res3)
+              if (res3.statusCode !== 404) {
+                test.fail(res3.statusCode, 404, null, '!==')
+              } else {
+                test.ok(res3.statusCode === 404)
+              }
+              test.done()
+            })
+          }
         })
       })
     }
-  //           if (res2.statusCode !== 200) {
-  //             test.fail(res2.statusCode, 200, null, '!==')
-  //             test.done()
-  //           } else {
-  //             test.ok(true)
-  //             test.done()
-  //             // self.request('GET', object_url,
-  //             //   function(res3) {
-  //             //     self.consume(res3)
-  //             //     if (res3.statusCode !== 404) {
-  //             //       test.fail(res3.statusCode, 404, null, '!==')
-  //             //     } else {
-  //             //       test.ok(res3.statusCode === 404)
-  //             //     }
-  //             //     test.done()
-  //             //   }
-  //             // )
-  //           }
-  //           self.consume(res2)
-  //         }
-  //       )
-  //     })
-  //   }
 //------------------------------------------------------------------------------
   , 'GET /graphs': function(test) {
       var self = this
