@@ -27,9 +27,10 @@ if (argv.h || argv.help) {
   process.exit()
 }
 
-var port = argv.p,
-    host = argv.a || '0.0.0.0',
-    log = bunyan.createLogger(
+var port = argv.p
+  , host = argv.a || '0.0.0.0'
+  , bucket = argv.b || 'default'
+  , log = bunyan.createLogger(
       { name: 'jsonldstore'
       , level: (argv.s || argv.silent) ? 'fatal' : 'debug' 
       })
@@ -46,9 +47,13 @@ if (!argv.p) {
 
 function logwriter(level) {
   var writer = new Writable()
-  writer._write = function(chunk, encoding, done){
-    log[level](chunk.toString())
-    done()
+  if (level === null) {
+    writer._write = function(chunk, encoding, done){ done() }
+  } else {
+    writer._write = function(chunk, encoding, done){
+      log[level](chunk.toString())
+      done()
+    }
   }
   return writer
 }
@@ -57,12 +62,16 @@ function load(port) {
   var options = { hostname: host
                 , port: port
                 , method: 'POST'
-                , path: '/'
+                , path: '/graphs'
                 }
     , req = http.request(options, function(res) {
-        log.info('STATUS: ' + res.statusCode)
-        log.info('HEADERS: ' + JSON.stringify(res.headers))
-        res.pipe(logwriter('info'))
+        if (res.statusCode !== 201) {
+          log.error('Failed to load '+argv.d)
+          res.pipe(logwriter('debug'))
+        } else {
+          log.info('Loaded '+argv.d+" to '"+bucket+"':\n"+res.headers.location)
+          res.pipe(logwriter(null))
+        }
       })
   fs.createReadStream(argv.d).pipe(req)
 }
@@ -70,12 +79,13 @@ function load(port) {
 function listen(port) {
   var server = jsonldstore.createServer(
     { name: 'jsonldstore'
-    , bucket: argv.b
+    , bucket: bucket
     , log: log
     })
   server.on('listening', function() {
     if (argv.d) load(port)
     log.info('Starting up jsonldstore, serving on port: ' + port);
+    log.info('Using bucket: ' + bucket)
     log.info('Hit CTRL-C to stop the server');
   })
   server.listen(port, host)

@@ -58,7 +58,7 @@ module.exports =
       })
     }
 //------------------------------------------------------------------------------
-  , 'Loading via POST to /graphs/': function(test) {
+  , 'Loading via POST to /graphs': function(test) {
       var self = this
       test.expect(3)
       self.load('test/data/named_graph.json', function(res) {
