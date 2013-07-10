@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Use a bucket named 'test'...
-SERVER="./bin/jsonldstore -b test"
+SERVER="./bin/jsonldstore -b test $@"
 
 # ...and pipe ouput to the bunyan logviewer. 
 LOGVIEW="./node_modules/bunyan/bin/bunyan -o short"

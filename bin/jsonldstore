@@ -19,8 +19,8 @@ if (argv.h || argv.help) {
       , "options:"
       , "  -p                 Port to use [8080]"
       , "  -a                 Address to use [0.0.0.0]"
-      , "  -d                 JSON file with data to load"
-      , "  -b                 Bucket to load data into [default]"
+      , "  -d --data          JSON file with data to load"
+      , "  -b --bucket        Bucket to load data into [default]"
       , "  -s --silent        Suppress log messages from output"
       , "  -h --help          Print this list and exit"
     ].join('\n'))
@@ -29,7 +29,8 @@ if (argv.h || argv.help) {
 
 var port = argv.p
   , host = argv.a || '0.0.0.0'
-  , bucket = argv.b || 'default'
+  , bucket = argv.b || argv.bucket || 'default'
+  , data = argv.d || argv.data
   , log = bunyan.createLogger(
       { name: 'jsonldstore'
       , level: (argv.s || argv.silent) ? 'fatal' : 'debug' 
@@ -66,14 +67,14 @@ function load(port) {
                 }
     , req = http.request(options, function(res) {
         if (res.statusCode !== 201) {
-          log.error('Failed to load '+argv.d)
+          log.error('Failed to load '+data)
           res.pipe(logwriter('debug'))
         } else {
-          log.info('Loaded '+argv.d+" to '"+bucket+"':\n"+res.headers.location)
+          log.info('Loaded '+data+" to '"+bucket+"':\n"+res.headers.location)
           res.pipe(logwriter(null))
         }
       })
-  fs.createReadStream(argv.d).pipe(req)
+  fs.createReadStream(data).pipe(req)
 }
 
 function listen(port) {
@@ -83,7 +84,7 @@ function listen(port) {
     , log: log
     })
   server.on('listening', function() {
-    if (argv.d) load(port)
+    if (data) load(port)
     log.info('Starting up jsonldstore, serving on port: ' + port);
     log.info('Using bucket: ' + bucket)
     log.info('Hit CTRL-C to stop the server');
