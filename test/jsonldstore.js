@@ -113,7 +113,8 @@ module.exports =
         self.consume(res1)
         parsejsonld.on('graph', function(o) {
           test.deepEqual(o, 
-            { '@id': '/_graphs/test-graph-1' 
+            { '@id': '/_graphs/test-graph-1'
+            , 'id': res1.headers.location.split('/').slice(-1)[0]
             , '@graph':
               [ { "@id": "/topicnode/666" }
               , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
@@ -179,6 +180,7 @@ module.exports =
         , check = new Writable({objectMode:true})
       expect = 
         [ { "@id": "/topicnode/666"
+          , 'id': hashurl('/topicnode/666')
           , "@type": "http://www.wikidata.org/wiki/Q215627"
           , "name": "Emma Goldman"
           , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
@@ -247,6 +249,7 @@ module.exports =
         , check = new Writable({objectMode:true})
       expect = 
         [ { "@id": "/topicnode/666"
+          , "id": hashurl('/topicnode/666')
           , "@type": "http://www.wikidata.org/wiki/Q215627"
           , "name": "Emma Goldman"
           , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
