@@ -53,7 +53,7 @@ script. To load it with some example data, use the `--data` flag:
 ./run_test_server.sh --data test/data/named_graph.json
 ```
 
-Note that you must use the long form (`--data`) rather than `-d` so
+Note that you must use the long form `--data` rather than `-d` so
 that [`nodemon`](https://github.com/remy/nodemon) (if it is installed)
 doesn't intercept the option.
 
