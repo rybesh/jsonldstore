@@ -16,9 +16,24 @@ npm install jsonldstore
 
 ## test
 
+To run a test server (for running the unit tests), use the
+[`run_test_server.sh`](https://github.com/rybesh/jsonldstore/blob/master/run_test_server.sh)
+script. Then run the unit tests:
+
 ```Shell
 npm test jsonldstore
 ```
+
+To load the test server with some example data (not needed for the
+unit tests), use the `--data` flag:
+
+```Shell
+./run_test_server.sh --bucket mybucket --data test/data/named_graph.json
+```
+
+Note that you must use the long form `--data` rather than `-d` so that
+[`nodemon`](https://github.com/remy/nodemon) (if it is installed)
+doesn't intercept the option.
 
 ## run
 
@@ -44,18 +59,6 @@ tool](https://github.com/trentm/node-bunyan#cli-usage):
 ```Shell
 jsonldstore | bunyan -o short
 ```
-
-To run a test server (for running the unit tests), use the
-[`run_test_server.sh`](https://github.com/rybesh/jsonldstore/blob/master/run_test_server.sh)
-script. To load it with some example data, use the `--data` flag:
-
-```Shell
-./run_test_server.sh --data test/data/named_graph.json
-```
-
-Note that you must use the long form `--data` rather than `-d` so
-that [`nodemon`](https://github.com/remy/nodemon) (if it is installed)
-doesn't intercept the option.
 
 ## license
 
