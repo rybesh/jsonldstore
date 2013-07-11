@@ -23,7 +23,19 @@ module.exports =
       }
       self.load = function(path, callback) {
         fs.createReadStream(path).pipe(
-          self.request('POST', '/graphs', callback))
+          self.request('POST', '/graphs', function(res) {
+            if (res.statusCode !== 201) {
+              console.log(
+                'Loading '+path+' failed with status: '+res.statusCode)
+            }
+            if (res.statusCode === 409) {
+              console.log('Clearing existing data')
+              self.consume(res)
+              self.clearGraphs(function() { self.load(path, callback) })
+            } else {
+              callback(res)
+            }
+          }))
       }
       self.consume = function(res, done) {
         res.on('readable', res.read)
@@ -31,7 +43,12 @@ module.exports =
       }
       self.deleteGraphs = function(urls, done) {
         if (urls.length) {
-          self.request('DELETE', urls.pop(), function(res){
+          var url = urls.pop()
+          self.request('DELETE', url, function(res){
+            if (res.statusCode  !== 200) {
+              console.log(
+                'deleting '+url+' failed with status: '+res.statusCode)
+            }
             self.consume(res)
             self.deleteGraphs(urls, done)
           })
@@ -39,24 +56,24 @@ module.exports =
           process.nextTick(done)
         }
       }
+      self.clearGraphs = function(done) {
+        var deleter = new Writable()
+        deleter._buffer = ''
+        deleter._write = function(chunk, encoding, callback) {
+          deleter._buffer += chunk
+          callback()
+        }
+        deleter.on('finish', function(){
+          self.deleteGraphs(
+            JSON.parse(deleter._buffer).map(function(o){ return o.url }), done)
+        })
+        self.request('GET', '/graphs', function(res){
+          res.pipe(deleter)
+        })
+      }
       done()
     }
-  , tearDown: function(done) {
-      var self = this
-        , deleter = new Writable()
-      deleter._buffer = ''
-      deleter._write = function(chunk, encoding, callback) {
-        deleter._buffer += chunk
-        callback()
-      }
-      deleter.on('finish', function(){
-        self.deleteGraphs(
-          JSON.parse(deleter._buffer).map(function(o){ return o.url }), done)
-      })
-      self.request('GET', '/graphs', function(res){
-        res.pipe(deleter)
-      })
-    }
+  , tearDown: function(done) { this.clearGraphs(done) }
 //------------------------------------------------------------------------------
   , 'Loading via POST to /graphs': function(test) {
       var self = this
@@ -75,13 +92,15 @@ module.exports =
       var self = this
         , objects_uri
         , req
-      test.expect(3)
+      test.expect(5)
       self.load('test/data/named_graph.json', function(res1) {
         objects_uri = res1.headers.location + '/objects'
         self.consume(res1)
         req = self.request('POST', objects_uri, function(res2) {
+          self.consume(res2)
           if (res2.statusCode !== 201) {
             test.fail(res2.statusCode, 201, null, '!==')
+            test.done()
           } else {
             test.ok(res2.headers.location, 'location header set')
             test.ok(
@@ -90,8 +109,17 @@ module.exports =
             test.ok(
               res2.headers.location.length > objects_uri.length,
               res2.headers.location)
+            self.request('GET', objects_uri, function(res3) {
+              var result, buffer = ''
+              res3.on('readable', function() { buffer += res3.read() })
+              res3.on('end', function() {
+                result = JSON.parse(buffer)
+                test.ok(result instanceof Array, buffer)
+                test.equal(result.length, 3)
+                test.done()
+              })
+            })
           }
-          self.consume(res2, test.done)
         })
         req.write(JSON.stringify(
           { "@id": "/topicnode/123"
@@ -107,6 +135,7 @@ module.exports =
         , parsejsonld = new JSONLDTransform()
       parsejsonld.on('error', function(e) {
         test.ifError(e)
+        test.done()
       })
       test.expect(1)
       self.load('test/data/named_graph.json', function(res1) {
@@ -130,6 +159,26 @@ module.exports =
             res2.pipe(parsejsonld)
           }
         })
+      })
+    }
+//------------------------------------------------------------------------------
+  , 'GETting a graph by name': function(test) {
+      var self = this
+      test.expect(1)
+      self.load('test/data/named_graph.json', function(res1) {
+        self.consume(res1)
+        self.request('GET', '/graphs/named//_graphs/test-graph-1', 
+          function(res2) {
+            self.consume(res2)
+            if (res2.statusCode !== 301) {
+              test.fail(res2.statusCode, 301, null, '!==')
+              test.done()
+            } else {
+              test.equal(res2.headers.location, res1.headers.location)
+              test.done()
+            }
+          }
+        )
       })
     }
 //------------------------------------------------------------------------------
@@ -184,6 +233,7 @@ module.exports =
         , check = new Writable({objectMode:true})
       parsejsonld.on('error', function(e) {
         test.ifError(e)
+        test.done()
       })
       check._write = function(chunk, encoding, callback) {
         test.deepEqual(chunk, expect.shift())

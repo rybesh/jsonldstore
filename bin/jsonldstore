@@ -48,11 +48,13 @@ if (!argv.p) {
 
 function logwriter(level) {
   var writer = new Writable()
+    , err
   if (level === null) {
     writer._write = function(chunk, encoding, done){ done() }
   } else {
     writer._write = function(chunk, encoding, done){
-      log[level](chunk.toString())
+      err = JSON.parse(chunk.toString())
+      log[level](err.code+': '+err.message)
       done()
     }
   }
