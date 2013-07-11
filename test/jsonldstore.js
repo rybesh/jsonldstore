@@ -29,11 +29,11 @@ module.exports =
         res.on('readable', res.read)
         if (done) res.on('end', done)
       }
-      self.deleteGraphs = function(uris, done) {
-        if (uris.length) {
-          self.request('DELETE', uris.pop(), function(res){
+      self.deleteGraphs = function(urls, done) {
+        if (urls.length) {
+          self.request('DELETE', urls.pop(), function(res){
             self.consume(res)
-            self.deleteGraphs(uris, done)
+            self.deleteGraphs(urls, done)
           })
         } else {
           process.nextTick(done)
@@ -51,7 +51,7 @@ module.exports =
       }
       deleter.on('finish', function(){
         self.deleteGraphs(
-          JSON.parse(deleter._buffer).map(function(o){ return o.key }), done)
+          JSON.parse(deleter._buffer).map(function(o){ return o.url }), done)
       })
       self.request('GET', '/graphs', function(res){
         res.pipe(deleter)
@@ -296,7 +296,7 @@ module.exports =
       var self = this
         , buffer = ''
         , result = null
-      test.expect(4)
+      test.expect(5)
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
         self.request('GET', '/graphs', function(res2) {
@@ -311,8 +311,15 @@ module.exports =
               result = JSON.parse(buffer)
               test.ok(result instanceof Array, buffer)
               test.equal(result.length, 1)
-              test.equal(result[0].key, res1.headers.location)
-              test.equal(result[0].value['@id'], '/_graphs/test-graph-1')
+              test.equal(
+                result[0].id, 
+                res1.headers.location.split('/').slice(-1)[0])
+              test.equal(
+                result[0]['@id'], 
+                '/_graphs/test-graph-1')
+              test.equal(
+                result[0].url, 
+                res1.headers.location)
               test.done()
             })
           }
