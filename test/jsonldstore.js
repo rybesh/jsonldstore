@@ -114,9 +114,9 @@ module.exports =
         parsejsonld.on('graph', function(o) {
           test.deepEqual(o, 
             { '@id': '/_graphs/test-graph-1'
-            , 'id': res1.headers.location.split('/').slice(-1)[0]
+            , 'url': res1.headers.location
             , '@graph':
-              [ { "@id": "/topicnode/666" }
+              [ { '@id': '/topicnode/666' }
               , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
               ]
             })
@@ -138,18 +138,6 @@ module.exports =
         , expect
         , parsejsonld = new JSONLDTransform()
         , check = new Writable({objectMode:true})
-      expect = 
-        [ { "@id": "/topicnode/666"
-          , "@type": "http://www.wikidata.org/wiki/Q215627"
-          , "name": "Emma Goldman"
-          , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
-          }
-        , { "@id": "http://www.wikidata.org/wiki/Q4115712"
-          , "@type": "http://www.wikidata.org/wiki/Q2221906"
-          , "name": "Kaunas"
-          }
-        ]
-      test.expect(expect.length)
       parsejsonld.on('error', function(e) {
         test.ifError(e)
       })
@@ -162,6 +150,22 @@ module.exports =
       })
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
+        expect = 
+          [ { "@id": "/topicnode/666"
+            , 'url': (res1.headers.location+'/objects/'
+                      + hashurl('/topicnode/666'))
+            , "@type": "http://www.wikidata.org/wiki/Q215627"
+            , "name": "Emma Goldman"
+            , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
+            }
+          , { "@id": "http://www.wikidata.org/wiki/Q4115712"
+            , 'url': (res1.headers.location+'/objects/'
+                      + hashurl('http://www.wikidata.org/wiki/Q4115712'))
+            , "@type": "http://www.wikidata.org/wiki/Q2221906"
+            , "name": "Kaunas"
+            }
+          ]
+        test.expect(expect.length)
         self.request('GET', res1.headers.location+'/objects', function(res2) {
           if (res2.statusCode !== 200) {
             test.fail(res2.statusCode, 200, null, '!==')
@@ -178,15 +182,6 @@ module.exports =
         , expect
         , parsejsonld = new JSONLDTransform()
         , check = new Writable({objectMode:true})
-      expect = 
-        [ { "@id": "/topicnode/666"
-          , 'id': hashurl('/topicnode/666')
-          , "@type": "http://www.wikidata.org/wiki/Q215627"
-          , "name": "Emma Goldman"
-          , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
-          }
-        ]
-      test.expect(expect.length)
       parsejsonld.on('error', function(e) {
         test.ifError(e)
       })
@@ -199,6 +194,16 @@ module.exports =
       })
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
+        expect = 
+          [ { "@id": "/topicnode/666"
+            , 'url': (res1.headers.location+'/objects/'
+                      + hashurl('/topicnode/666'))
+            , "@type": "http://www.wikidata.org/wiki/Q215627"
+            , "name": "Emma Goldman"
+            , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
+            }
+          ]
+        test.expect(expect.length)
         self.request('GET', 
           res1.headers.location+'/objects/'+hashurl('/topicnode/666'), 
           function(res2) {
@@ -247,16 +252,6 @@ module.exports =
         , expect
         , parsejsonld = new JSONLDTransform()
         , check = new Writable({objectMode:true})
-      expect = 
-        [ { "@id": "/topicnode/666"
-          , "id": hashurl('/topicnode/666')
-          , "@type": "http://www.wikidata.org/wiki/Q215627"
-          , "name": "Emma Goldman"
-          , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
-          , "sex": "http://www.wikidata.org/wiki/Q6581072"
-          }
-        ]
-      test.expect(expect.length)
       parsejsonld.on('error', function(e) {
         test.ifError(e)
       })
@@ -270,6 +265,17 @@ module.exports =
       test.expect(1)
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
+        expect = 
+          [ { "@id": "/topicnode/666"
+            , 'url': (res1.headers.location+'/objects/'
+                      + hashurl('/topicnode/666'))
+            , "@type": "http://www.wikidata.org/wiki/Q215627"
+            , "name": "Emma Goldman"
+            , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
+            , "sex": "http://www.wikidata.org/wiki/Q6581072"
+            }
+          ]
+        test.expect(expect.length)
         object_url = res1.headers.location+'/objects/'+hashurl('/topicnode/666')
         req = self.request('PUT', object_url, function(res2) {
           self.consume(res2)
