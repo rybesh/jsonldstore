@@ -16,12 +16,13 @@ npm install jsonldstore
 
 ## test
 
-To run a test server (for running the unit tests), use the
+Running the tests is easier if you clone this repo. To run a test
+server (for running the unit tests), use the
 [`run_test_server.sh`](https://github.com/rybesh/jsonldstore/blob/master/run_test_server.sh)
-script. Then run the unit tests:
+script in the root of the repo. Then run the unit tests:
 
 ```Shell
-npm test jsonldstore
+npm test
 ```
 
 To load the test server with some example data (not needed for the
