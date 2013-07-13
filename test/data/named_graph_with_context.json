@@ -1,0 +1,30 @@
+{ "@id": "/_graphs/test-graph-1"
+, "@context":
+  { "person": "http://www.wikidata.org/wiki/Q215627"
+  , "location": "http://www.wikidata.org/wiki/Q2221906"
+  , "label": "http://www.w3.org/2000/01/rdf-schema#"
+  , "place of birth": 
+    { "@id": "http://www.wikidata.org/wiki/Property:P19"
+    , "@type": "@id"
+    }
+  , "country": 
+    { "@id": "http://www.wikidata.org/wiki/Property:P17"
+    , "@type": "@id"
+    }
+  }
+, "@graph":
+  [ { "@id": "/topicnode/666"
+    , "@type": "person"
+    , "label": "Emma Goldman"
+    , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q4115712"
+    , "@type": "location"
+    , "label": "Kaunas"
+    , "country": "http://www.wikidata.org/wiki/Q37"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q37"
+    , "label": "Lithuania"
+    }
+  ]
+}
