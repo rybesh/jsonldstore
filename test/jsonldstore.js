@@ -430,8 +430,8 @@ module.exports =
       var self = this
         , buffer = ''
         , result = null
-      test.expect(4)
-      self.load('test/data/named_graph.json', function(res1) {
+      test.expect(6)
+      self.load('test/data/named_graph_with_context.json', function(res1) {
         self.consume(res1)
         self.request('GET', '/graphs', function(res2) {
           if (res2.statusCode !== 200) {
@@ -447,10 +447,16 @@ module.exports =
               test.equal(result.length, 1)
               test.equal(
                 result[0]['@id'], 
-                '/_graphs/test-graph-1')
+                '/_graphs/test-graph-2')
               test.equal(
                 result[0].url, 
                 res1.headers.location)
+              test.equal(
+                result[0]['@context'], 
+                res1.headers.location + '/context')
+              test.equal(
+                result[0]['objects'], 
+                res1.headers.location + '/objects')
               test.done()
             })
           }
