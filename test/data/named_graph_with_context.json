@@ -1,4 +1,4 @@
-{ "@id": "/_graphs/test-graph-1"
+{ "@id": "/_graphs/test-graph-2"
 , "@context":
   { "person": "http://www.wikidata.org/wiki/Q215627"
   , "location": "http://www.wikidata.org/wiki/Q2221906"

@@ -144,6 +144,7 @@ module.exports =
           test.deepEqual(o, 
             { '@id': '/_graphs/test-graph-1'
             , 'url': res1.headers.location
+            , 'objects': res1.headers.location + '/objects'
             , '@graph':
               [ { '@id': '/topicnode/666' }
               , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
@@ -152,6 +153,83 @@ module.exports =
           test.done()
         })
         self.request('GET', res1.headers.location, function(res2) {
+          if (res2.statusCode !== 200) {
+            test.fail(res2.statusCode, 200, null, '!==')
+            test.done()
+          } else {
+            res2.pipe(parsejsonld)
+          }
+        })
+      })
+    }
+//------------------------------------------------------------------------------
+  , 'GETting a graph with context': function(test) {
+      var self = this
+        , parsejsonld = new JSONLDTransform()
+      parsejsonld.on('error', function(e) {
+        test.ifError(e)
+        test.done()
+      })
+      test.expect(3)
+      self.load('test/data/named_graph_with_context.json', function(res1) {
+        self.consume(res1)
+        parsejsonld.on('context', function(url, scope) {
+          test.equal(url, res1.headers.location + '/context')
+          test.equal(scope, '')
+        })
+        parsejsonld.on('graph', function(o) {
+          test.deepEqual(o, 
+            { '@id': '/_graphs/test-graph-2'
+            , 'url': res1.headers.location
+            , '@context': res1.headers.location + '/context'
+            , 'objects': res1.headers.location + '/objects'
+            , '@graph':
+              [ { '@id': '/topicnode/666' }
+              , { "@id": "http://www.wikidata.org/wiki/Q4115712" }
+              , { "@id": "http://www.wikidata.org/wiki/Q37" }
+              ]
+            })
+          test.done()
+        })
+        self.request('GET', res1.headers.location, function(res2) {
+          if (res2.statusCode !== 200) {
+            test.fail(res2.statusCode, 200, null, '!==')
+            test.done()
+          } else {
+            res2.pipe(parsejsonld)
+          }
+        })
+      })
+    }
+//------------------------------------------------------------------------------
+  , 'GETting a graph\'s context': function(test) {
+      var self = this
+        , parsejsonld = new JSONLDTransform()
+      parsejsonld.on('error', function(e) {
+        test.ifError(e)
+        test.done()
+      })
+      parsejsonld.on('context', function(o, scope) {
+        test.deepEqual(o, 
+          { 'person': 'http://www.wikidata.org/wiki/Q215627'
+          , 'location': 'http://www.wikidata.org/wiki/Q2221906'
+          , 'label': 'http://www.w3.org/2000/01/rdf-schema#'
+          , 'place of birth':
+            { '@id': 'http://www.wikidata.org/wiki/Property:P19'
+            , '@type': '@id'
+            }
+          , 'country':
+            { '@id': 'http://www.wikidata.org/wiki/Property:P17'
+            , '@type': '@id'
+            }
+          })
+        test.equal(scope, '')
+        test.done()
+      })
+      test.expect(2)
+      self.load('test/data/named_graph_with_context.json', function(res1) {
+        self.consume(res1)
+        self.request('GET', res1.headers.location + '/context', function(res2) {
           if (res2.statusCode !== 200) {
             test.fail(res2.statusCode, 200, null, '!==')
             test.done()
