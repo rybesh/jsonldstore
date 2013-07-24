@@ -212,7 +212,7 @@ module.exports =
       parsejsonld.on('context', function(o, scope) {
         test.deepEqual(o, 
           { 'person': 'http://www.wikidata.org/wiki/Q215627'
-          , 'location': 'http://www.wikidata.org/wiki/Q2221906'
+          , 'place': "http://www.wikidata.org/wiki/Q618123"
           , 'label': 'http://www.w3.org/2000/01/rdf-schema#'
           , 'place of birth':
             { '@id': 'http://www.wikidata.org/wiki/Property:P19'

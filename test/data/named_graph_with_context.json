@@ -1,7 +1,7 @@
 { "@id": "/_graphs/test-graph-2"
 , "@context":
   { "person": "http://www.wikidata.org/wiki/Q215627"
-  , "location": "http://www.wikidata.org/wiki/Q2221906"
+  , "place": "http://www.wikidata.org/wiki/Q618123"
   , "label": "http://www.w3.org/2000/01/rdf-schema#"
   , "place of birth": 
     { "@id": "http://www.wikidata.org/wiki/Property:P19"
@@ -19,11 +19,12 @@
     , "place of birth": "http://www.wikidata.org/wiki/Q4115712"
     }
   , { "@id": "http://www.wikidata.org/wiki/Q4115712"
-    , "@type": "location"
+    , "@type": "place"
     , "label": "Kaunas"
     , "country": "http://www.wikidata.org/wiki/Q37"
     }
   , { "@id": "http://www.wikidata.org/wiki/Q37"
+    , "@type": "place"
     , "label": "Lithuania"
     }
   ]
