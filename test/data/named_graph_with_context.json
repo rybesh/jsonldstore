@@ -2,14 +2,15 @@
 , "@context":
   { "person": "http://www.wikidata.org/wiki/Q215627"
   , "place": "http://www.wikidata.org/wiki/Q618123"
+  , "country": "http://www.wikidata.org/wiki/Q6256"
   , "label": "http://www.w3.org/2000/01/rdf-schema#"
-  , "place of birth": 
+  , "place of birth":
     { "@id": "http://www.wikidata.org/wiki/Property:P19"
-    , "@type": "@id"
+    , "@type": "place"
     }
-  , "country": 
+  , "is in country":
     { "@id": "http://www.wikidata.org/wiki/Property:P17"
-    , "@type": "@id"
+    , "@type": "country"
     }
   }
 , "@graph":
@@ -21,10 +22,11 @@
   , { "@id": "http://www.wikidata.org/wiki/Q4115712"
     , "@type": "place"
     , "label": "Kaunas"
-    , "country": "http://www.wikidata.org/wiki/Q37"
+    , "is in country": "http://www.wikidata.org/wiki/Q37"
     }
   , { "@id": "http://www.wikidata.org/wiki/Q37"
     , "@type": "place"
+    , "@type": "country"
     , "label": "Lithuania"
     }
   ]

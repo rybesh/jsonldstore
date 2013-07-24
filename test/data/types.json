@@ -1,0 +1,26 @@
+{ "@id": "/types"
+, "@context": { "label": "http://www.w3.org/2000/01/rdf-schema#" }
+, "@graph":
+  [ { "@id": "http://www.wikidata.org/wiki/Q215627"
+    , "label": "person"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q43229"
+    , "label": "organization"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q1656682"
+    , "label": "event"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q386724"
+    , "label": "creative work"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q1969448"
+    , "label": "term"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q618123"
+    , "label": "place"
+    }
+  , { "@id": "http://www.wikidata.org/wiki/Q6256"
+    , "label": "country"
+    }
+  ]
+}
