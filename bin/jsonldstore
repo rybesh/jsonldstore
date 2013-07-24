@@ -67,16 +67,20 @@ function load(port) {
                 , method: 'POST'
                 , path: '/graphs'
                 }
-    , req = http.request(options, function(res) {
-        if (res.statusCode !== 201) {
-          log.error('Failed to load '+data)
-          res.pipe(logwriter('debug'))
-        } else {
-          log.info('Loaded '+data+" to '"+bucket+"':\n"+res.headers.location)
-          res.pipe(logwriter(null))
-        }
-      })
-  fs.createReadStream(data).pipe(req)
+    , req
+  if (typeof(data) === 'string') data = [data] 
+  data.forEach(function(path) {
+    req = http.request(options, function(res) {
+      if (res.statusCode !== 201) {
+        log.error('Failed to load '+path)
+        res.pipe(logwriter('debug'))
+      } else {
+        log.info('Loaded '+path+" to '"+bucket+"':\n"+res.headers.location)
+        res.pipe(logwriter(null))
+      }
+    })
+    fs.createReadStream(path).pipe(req)
+  })
 }
 
 function listen(port) {
