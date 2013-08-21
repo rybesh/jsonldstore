@@ -1,8 +1,0 @@
-{ "@id": "/contexts/place"
-, "@context":
-  { "label": "http://www.w3.org/2000/01/rdf-schema#label"
-  , "coordinates": "http://www.wikidata.org/wiki/Property:P625"
-  }
-, "@graph": []
-}
-

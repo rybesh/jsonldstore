@@ -10,7 +10,7 @@ module.exports =
   { setUp: function(done) {
       var self = this
       self.request = function(method, path, callback){
-        var options = 
+        var options =
           { hostname: '0.0.0.0'
           , port: 8080
           , method: method
@@ -82,7 +82,7 @@ module.exports =
         test.equal(res.statusCode, 201)
         test.ok(res.headers.location, 'location header set')
         test.ok(
-          res.headers.location.slice(0,8) === '/graphs/', 
+          res.headers.location.slice(0,8) === '/graphs/',
           'location is: ' + res.headers.location)
         self.consume(res, test.done)
       })
@@ -104,7 +104,7 @@ module.exports =
           } else {
             test.ok(res2.headers.location, 'location header set')
             test.ok(
-              res2.headers.location.indexOf(objects_uri) === 0, 
+              res2.headers.location.indexOf(objects_uri) === 0,
               (res2.headers.location+' does not start with '+objects_uri))
             test.ok(
               res2.headers.location.length > objects_uri.length,
@@ -141,7 +141,7 @@ module.exports =
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
         parsejsonld.on('graph', function(o) {
-          test.deepEqual(o, 
+          test.deepEqual(o,
             { '@id': '/_graphs/test-graph-1'
             , 'url': res1.headers.location
             , 'objects': res1.headers.location + '/objects'
@@ -178,7 +178,7 @@ module.exports =
           test.equal(scope, '')
         })
         parsejsonld.on('graph', function(o) {
-          test.deepEqual(o, 
+          test.deepEqual(o,
             { '@id': '/_graphs/test-graph-2'
             , 'url': res1.headers.location
             , '@context': res1.headers.location + '/context'
@@ -210,17 +210,18 @@ module.exports =
         test.done()
       })
       parsejsonld.on('context', function(o, scope) {
-        test.deepEqual(o, 
+        test.deepEqual(o,
           { 'person': 'http://www.wikidata.org/wiki/Q215627'
           , 'place': "http://www.wikidata.org/wiki/Q618123"
-          , 'label': 'http://www.w3.org/2000/01/rdf-schema#'
+          , 'country': 'http://www.wikidata.org/wiki/Q6256'
+          , 'label': 'http://www.w3.org/2000/01/rdf-schema#label'
           , 'place of birth':
             { '@id': 'http://www.wikidata.org/wiki/Property:P19'
-            , '@type': '@id'
+            , '@type': 'place'
             }
-          , 'country':
+          , 'is in country':
             { '@id': 'http://www.wikidata.org/wiki/Property:P17'
-            , '@type': '@id'
+            , '@type': 'country'
             }
           })
         test.equal(scope, '')
@@ -245,7 +246,7 @@ module.exports =
       test.expect(1)
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
-        self.request('GET', '/graphs/named//_graphs/test-graph-1', 
+        self.request('GET', '/graphs/named//_graphs/test-graph-1',
           function(res2) {
             self.consume(res2)
             if (res2.statusCode !== 301) {
@@ -277,7 +278,7 @@ module.exports =
       })
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
-        expect = 
+        expect =
           [ { "@id": "/topicnode/666"
             , 'url': (res1.headers.location+'/objects/'
                       + hashurl('/topicnode/666'))
@@ -322,7 +323,7 @@ module.exports =
       })
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
-        expect = 
+        expect =
           [ { "@id": "/topicnode/666"
             , 'url': (res1.headers.location+'/objects/'
                       + hashurl('/topicnode/666'))
@@ -332,8 +333,8 @@ module.exports =
             }
           ]
         test.expect(expect.length)
-        self.request('GET', 
-          res1.headers.location+'/objects/'+hashurl('/topicnode/666'), 
+        self.request('GET',
+          res1.headers.location+'/objects/'+hashurl('/topicnode/666'),
           function(res2) {
             if (res2.statusCode !== 200) {
               test.fail(res2.statusCode, 200, null, '!==')
@@ -393,7 +394,7 @@ module.exports =
       test.expect(1)
       self.load('test/data/named_graph.json', function(res1) {
         self.consume(res1)
-        expect = 
+        expect =
           [ { "@id": "/topicnode/666"
             , 'url': (res1.headers.location+'/objects/'
                       + hashurl('/topicnode/666'))
@@ -446,16 +447,16 @@ module.exports =
               test.ok(result instanceof Array, buffer)
               test.equal(result.length, 1)
               test.equal(
-                result[0]['@id'], 
+                result[0]['@id'],
                 '/_graphs/test-graph-2')
               test.equal(
-                result[0].url, 
+                result[0].url,
                 res1.headers.location)
               test.equal(
-                result[0]['@context'], 
+                result[0]['@context'],
                 res1.headers.location + '/context')
               test.equal(
-                result[0]['objects'], 
+                result[0]['objects'],
                 res1.headers.location + '/objects')
               test.done()
             })
