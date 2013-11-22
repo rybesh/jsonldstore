@@ -17,7 +17,7 @@
   , "db"
   ]
 , "dependencies": 
-  { "couchbase"       : "0.0.x"
+  { "couchbase"       : "1.1.x"
   , "MD5"             : "1.0.x"
   , "aysnc"           : "0.2.x"
   , "restify"         : "2.6.x"
